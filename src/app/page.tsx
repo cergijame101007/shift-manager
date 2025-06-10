@@ -1,103 +1,95 @@
-import Image from "next/image";
+'use client'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabaseClient'
+import { useRouter } from 'next/navigation'
 
-export default function Home() {
+const TopPage = () => {
+  const [email, setEmail] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [message, setMessage] = useState('')
+  const router = useRouter()
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setIsLoggedIn(true)
+      }
+    }
+    checkLogin()
+  }, [])
+
+  const handleLogin = async () => {
+    if (!email) {
+      setMessage('メールアドレスを入力してください')
+      return
+    }
+
+    const { error } = await supabase.auth.signInWithOtp({ email })
+
+    if (error) {
+      setMessage(`エラー: ${error.message}`)
+    } else {
+      setMessage('ログインリンクを送信しました。メールを確認してください。')
+    }
+  }
+
+  const handleAction = () => {
+    if (isLoggedIn) {
+      router.push('/submit/history')
+    }
+  }
+
+  const goToHistory = () => router.push('/submit/history')
+  const goToSchedule = () => router.push('/schedule')
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="max-w-md mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold">鰻の成瀬／シフト管理アプリ</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <section className="bg-gray-50 p-6 rounded shadow">
+        <h2 className="text-xl font-semibold mb-2 text-gray-800">このアプリについて</h2>
+        <p className="text-gray-700 leading-relaxed">
+          このアプリは、スタッフが勤務希望シフトを提出し、店長が確定・共有するためのシフト管理ツールです。
+        </p>
+        <p className="mt-2 text-gray-700">提出後は個人用画面で履歴を確認できます。</p>
+      </section>
+
+      {isLoggedIn ? (
+        <section className="grid gap-4 sm:grid-cols-2">
+          <button
+            onClick={goToHistory}
+            className="bg-blue-600 text-white py-2 px-4 rounded shadow hover:bg-blue-700 transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            個人用画面へ進む
+          </button>
+          <button onClick={goToSchedule}
+            className="bg-green-600 text-white py-2 px-4 rounded shadow hover:bg-green-700 transition"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            共有シフトを見る
+          </button>
+        </section>
+      ) : (
+        <>
+          <input
+            type="email"
+            placeholder="メールアドレスを入力"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border px-3 py-2"
+            required
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+          <button
+            onClick={handleLogin}
+            className="bg-green-600 text-white px-4 py-2 rounded w-full"
+          >
+            認証して個人用画面を作成
+          </button>
+          {message && <p className="text-sm text-gray-700">{message}</p>}
+        </>
+      )}
+    </main>
+  )
 }
+
+export default TopPage
