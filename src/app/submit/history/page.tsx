@@ -13,16 +13,8 @@ const SubmitHistoryPage = () => {
             const { data: { session } } = await supabase.auth.getSession()
 
             if (!session) {
-                const { data: { subscription } } = supabase.auth.onAuthStateChange(
-                    async (event, session) => {
-                        if (event === 'SIGNED_IN' && session) {
-                            await loadData()
-                        } else {
-                            router.push('/login')
-                        }
-                    }
-                )
-                return () => subscription.unsubscribe()
+                router.push('/login')
+                return
             }
 
             const userId = session.user.id

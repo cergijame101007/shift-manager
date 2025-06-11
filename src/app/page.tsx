@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 const TopPage = () => {
   const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
@@ -12,6 +13,7 @@ const TopPage = () => {
   useEffect(() => {
     const checkLogin = async () => {
       const { data: { session } } = await supabase.auth.getSession()
+
       if (session) {
         setIsLoggedIn(true)
       }
@@ -19,11 +21,38 @@ const TopPage = () => {
     checkLogin()
   }, [])
 
+  useEffect(() => {
+    const syncUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (session) {
+        const user = session.user
+
+        const { error } = await supabase.from('users').upsert({
+          id: user.id,
+          email: user.email,
+          name: localStorage.getItem('temp_name') || 'NoName',
+          role: 'staff',
+          level: 1,
+        }, { onConflict: 'id' })
+
+        if (!error) {
+          localStorage.removeItem('temp_name') // ← 登録後は消す
+        } else {
+          console.error('upsert error:', error.message)
+        }
+      }
+    }
+    syncUser()
+  }, [])
+
   const handleLogin = async () => {
-    if (!email) {
-      setMessage('メールアドレスを入力してください')
+    if (!email || !name) {
+      setMessage('メールアドレスと名前を入力してください')
       return
     }
+
+    localStorage.setItem('tempName', name)
 
     const { error } = await supabase.auth.signInWithOtp({ email })
 
@@ -31,12 +60,6 @@ const TopPage = () => {
       setMessage(`エラー: ${error.message}`)
     } else {
       setMessage('ログインリンクを送信しました。メールを確認してください。')
-    }
-  }
-
-  const handleAction = () => {
-    if (isLoggedIn) {
-      router.push('/submit/history')
     }
   }
 
@@ -78,6 +101,13 @@ const TopPage = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border px-3 py-2"
             required
+          />
+          <input
+            type="text"
+            placeholder="名前"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border px-3 py-2 mt-2"
           />
           <button
             onClick={handleLogin}

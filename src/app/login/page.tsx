@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
-import { Session } from "inspector/promises";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('')

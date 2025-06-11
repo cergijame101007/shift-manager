@@ -1,12 +1,26 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 const SubmitShiftPage = () => {
     const [date, setDate] = useState('')
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
-    const userId = '11111111-1111-1111-1111-111111111111'
+    const [userId, setUserId] = useState<string | null>(null)
+    const router = useRouter()
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                router.push('/login')
+            } else {
+                setUserId(session.user.id)
+            }
+        }
+        getUser()
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
