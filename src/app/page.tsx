@@ -37,7 +37,7 @@ const TopPage = () => {
         }, { onConflict: 'id' })
 
         if (!error) {
-          localStorage.removeItem('temp_name') // ← 登録後は消す
+          localStorage.removeItem('temp_name')
         } else {
           console.error('upsert error:', error.message)
         }

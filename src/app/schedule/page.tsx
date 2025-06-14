@@ -20,7 +20,7 @@ const SchedulePage = () => {
     ])
 
     return (
-        <div className="p-4">
+        <div className="p-4 rounded shadow">
             <h1 className="text-2xl font-bold mb-4">共有シフトカレンダー</h1>
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -34,12 +34,12 @@ const SchedulePage = () => {
                 height="auto"
                 dayHeaderContent={(arg) => {
                     const day = arg.date.getDay()
-                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'white'
+                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
                     return <span style={{ color }}>{arg.text}</span>
                 }}
                 dayCellContent={(arg) => {
                     const day = arg.date.getDay()
-                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'white'
+                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
                     return <div style={{ color }}>{arg.dayNumberText}</div>
                 }}
             />
