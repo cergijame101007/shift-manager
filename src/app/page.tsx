@@ -65,6 +65,7 @@ const TopPage = () => {
 
   const goToHistory = () => router.push('/submit/history')
   const goToSchedule = () => router.push('/schedule')
+  const goToSubmit = () => router.push('/submit')
 
   return (
     <main className="max-w-md mx-auto p-6 space-y-6">
@@ -90,6 +91,11 @@ const TopPage = () => {
             className="bg-green-600 text-white py-2 px-4 rounded shadow hover:bg-green-700 transition"
           >
             共有シフトを見る
+          </button>
+          <button onClick={goToSubmit}
+            className="bg-yellow-600 text-white py-2 px-4 rounded shadow hover:bg-yellow-700 transition"
+          >
+            シフトを提出する
           </button>
         </section>
       ) : (

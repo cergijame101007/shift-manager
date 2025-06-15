@@ -42,6 +42,7 @@ const Header = () => {
                 <Link href="/" className="hover:underline" >トップ</Link>
                 <Link href="/submit/history" className="hover:underline">提出履歴</Link>
                 <Link href="/schedule" className="hover:underline">共有シフト</Link>
+                <Link href="/submit" className="hover:underline">シフト提出</Link>
             </nav>
             {userName ? (
                 <div className="flex items-center gap-4">
