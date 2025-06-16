@@ -83,17 +83,17 @@ const TopPage = () => {
         <section className="grid gap-4 sm:grid-cols-2">
           <button
             onClick={goToHistory}
-            className="bg-blue-600 text-white py-2 px-4 rounded shadow hover:bg-blue-700 transition"
+            className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
             個人用画面へ進む
           </button>
           <button onClick={goToSchedule}
-            className="bg-green-600 text-white py-2 px-4 rounded shadow hover:bg-green-700 transition"
+            className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
             共有シフトを見る
           </button>
           <button onClick={goToSubmit}
-            className="bg-yellow-600 text-white py-2 px-4 rounded shadow hover:bg-yellow-700 transition"
+            className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
             シフトを提出する
           </button>
