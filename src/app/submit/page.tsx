@@ -7,6 +7,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { title } from "process";
+import { getWeek } from "date-fns";
+import { get } from "http";
 
 const SubmitShiftPage = () => {
     const [date, setDate] = useState<string>('')
@@ -30,6 +32,12 @@ const SubmitShiftPage = () => {
         }
         getUser()
     }, [])
+
+    const getWeekday = (dateString: string): string => {
+        const date = new Date(dateString);
+        const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
+        return new Intl.DateTimeFormat('ja-JP', options).format(date);
+    }
 
     const handleAddShift = () => {
         if (!date || !startTime || !endTime) {
@@ -146,7 +154,7 @@ const SubmitShiftPage = () => {
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
-                        <h2 className="text-lg text-black font-bold mb-4">{date}のシフトを提出</h2>
+                        <h2 className="text-lg text-black font-bold mb-4">{date}({getWeekday(date)})のシフトを提出</h2>
                         <div className="mb-4">
                             <label className="block text-sm text-black font-medium mb-2">開始時間</label>
                             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
