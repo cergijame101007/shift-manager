@@ -2,12 +2,21 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import { title } from "process";
 
 const SubmitShiftPage = () => {
-    const [date, setDate] = useState('')
+    const [date, setDate] = useState<string>('')
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
+    const [note, setNote] = useState('')
+    const [events, setEvents] = useState<any[]>([])
     const [userId, setUserId] = useState<string | null>(null)
+    const [showModal, setShowModal] = useState(false)
+    const [selectedEvent, setSelectedEvent] = useState<any | null>(null)
     const router = useRouter()
 
     useEffect(() => {
@@ -22,43 +31,155 @@ const SubmitShiftPage = () => {
         getUser()
     }, [])
 
+    const handleAddShift = () => {
+        if (!date || !startTime || !endTime) {
+            alert('すべてのフィールドを入力してください')
+            return
+        }
+        const startDateTime = new Date(`${date}T${startTime}`);
+        const endDateTime = new Date(`${date}T${endTime}`);
+        setEvents([...events, {
+            title: note || `${startTime} - ${endTime}`, start: startDateTime, end: endDateTime
+        }]);
+        console.log(events);
+        setShowModal(false);
+        setDate('');
+        setStartTime('');
+        setEndTime('');
+        setNote('');
+    }
+
+    const handleEditShift = () => {
+        if (!selectedEvent || !date || !startTime || !endTime) {
+            alert('すべてのフィールドを入力してください');
+            return;
+        }
+        const updatedEvent = events.map(event => event.id === selectedEvent.id ? {
+            ...event,
+            title: note || `${startTime} - ${endTime}`,
+            start: new Date(`${date}T${startTime}`),
+            end: new Date(`${date}T${endTime}`)
+        } : event);
+        setEvents(updatedEvent);
+        resetModal();
+    }
+
+    const handleDeleteShift = () => {
+        if (!selectedEvent) {
+            return;
+        }
+        setEvents(events.filter(event => event.id !== selectedEvent.id));
+        resetModal();
+    }
+
+    const resetModal = () => {
+        setSelectedEvent(null);
+        setDate('');
+        setStartTime('');
+        setEndTime('');
+        setNote('');
+        setShowModal(false);
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        const { error } = await supabase.from('requested_shifts').insert([
-            {
-                user_id: userId,
-                date,
-                start_time: startTime,
-                end_time: endTime,
-            }
-        ])
+        const insertedEvents = events.map(event => ({
+            user_id: userId,
+            date: event.start.toISOString().split('T')[0], // 日付部分のみを抽出
+            start_time: event.start.toTimeString().split(' ')[0], // 時間部分のみを抽出
+            end_time: event.end.toTimeString().split(' ')[0], // 時間部分のみを抽出
+        }));
+        const { error } = await supabase.from('requested_shifts').insert(insertedEvents)
         if (error) {
             alert(`登録失敗:${error.message}`)
         } else {
             alert('希望シフトを提出しました')
-            setDate('')
-            setStartTime('')
-            setEndTime('')
+            setEvents([]);
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">希望シフト提出</h2>
-            <div>
-                <label className="block text-sm">日付</label>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full border px-2 py-1" required />
+        <section className="max-w-3xl mx-auto p-6">
+            <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="dayGridMonth"
+                dateClick={(info: any) => {
+                    setDate(info.dateStr);
+                    setShowModal(true);
+                }}
+                events={events}
+                eventClick={(info) => {
+                    setSelectedEvent({
+                        ...info.event.extendedProps,
+                        id: info.event.id,
+                        start: info.event.start,
+                        end: info.event.end,
+                        title: info.event.title
+                    });
+                    setDate(info.event.startStr.split("T")[0]);
+                    setStartTime(info.event.startStr.slice(11, 16));
+                    setEndTime(info.event.endStr.slice(11, 16));
+                    setNote(info.event.title !== '希望' ? info.event.title : '');
+                    setShowModal(true);
+                }}
+                eventContent={(arg) => {
+                    return (
+                        <div className="text-black text-xs truncate">
+                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                            {arg.event.title}
+                        </div>
+                    )
+                }}
+                height={"auto"}
+                dayHeaderContent={(arg) => {
+                    const day = arg.date.getDay()
+                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
+                    return <span style={{ color }}>{arg.text}</span>
+                }}
+                dayCellContent={(arg) => {
+                    const day = arg.date.getDay()
+                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
+                    return <div style={{ color }}>{arg.dayNumberText}</div>
+                }}
+            />
+
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
+                        <h2 className="text-lg text-black font-bold mb-4">{date}のシフトを提出</h2>
+                        <div className="mb-4">
+                            <label className="block text-sm text-black font-medium mb-2">開始時間</label>
+                            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm text-black font-medium mb-2">終了時間</label>
+                            <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm text-black font-medium mb-2">備考</label>
+                            <textarea value={note} onChange={(e) => setNote(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <button onClick={() => setShowModal(false)} className="px-3 py-1 text-black border-gray-700 rounded shadow">キャンセル</button>
+                            {selectedEvent ? (
+                                <div>
+                                    <button onClick={handleEditShift} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">編集</button>
+                                    <button onClick={handleDeleteShift} className="bg-red-700 text-white py-2 px-4 rounded shadow hover:bg-red-800 transition">削除</button>
+                                </div>
+                            ) : (
+                                <button onClick={handleAddShift} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">確定</button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            <div className="mt-6">
+                <button onClick={handleSubmit} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">
+                    シフトを提出する
+                </button>
             </div>
-            <div>
-                <label className="block text-sm">開始時間</label>
-                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full border px-2 py-1" required />
-            </div>
-            <div>
-                <label className="block text-sm">終了時間</label>
-                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full border px-2 py-1" required />
-            </div>
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">提出</button>
-        </form>
+        </section>
+
     )
 }
 
