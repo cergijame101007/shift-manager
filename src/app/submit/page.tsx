@@ -89,8 +89,7 @@ const SubmitShiftPage = () => {
         setShowModal(false);
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleSubmit = async () => {
         const insertedEvents = events.map(event => ({
             user_id: userId,
             date: event.start.toISOString().split('T')[0], // 日付部分のみを抽出
