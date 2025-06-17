@@ -3,9 +3,11 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Menu, X } from 'lucide-react'
 
 const Header = () => {
     const [userName, setUserName] = useState<string | null>(null)
+    const [isOpen, setIsOpen] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
@@ -37,15 +39,25 @@ const Header = () => {
     }
 
     return (
-        <header className="w-full p-4 bg-gray-100 flex justify-between items-center">
-            <nav className="flex gap-x-6 text-base text-gray-800">
-                <Link href="/" className="hover:underline" >トップ</Link>
-                <Link href="/submit/history" className="hover:underline">提出履歴</Link>
-                <Link href="/schedule" className="hover:underline">共有シフト</Link>
-                <Link href="/submit" className="hover:underline">シフト提出</Link>
+        <header className="w-full bg-gray-100 text-gray-800 shadow p-4 flex items-center justify-between">
+            <Link href="/" className="text-xl font-bold">鰻の成瀬</Link >
+            <nav className="hidden sm:flex gap-x-6 text-base">
+                <Link href="/submit/history" className="px-3 py-2 hover:bg-gray-200 rounded">提出履歴</Link>
+                <Link href="/schedule" className="px-3 py-2 hover:bg-gray-200 rounded">共有シフト</Link>
+                <Link href="/submit" className="px-3 py-2 hover:bg-gray-200 rounded">シフト提出</Link>
             </nav>
+            <div className="flex-1 flex justify-end items-center gap-4">
+                <button
+                    className="sm:hidden p-2 rounded-md hover:bg-gray-200"
+                    onClick={() => setIsOpen(!isOpen)}
+                    aria-label="メニューを開く"
+                >
+                    {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+            </div>
+
             {userName ? (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                     <span className="text-sm text-gray-600">{userName}</span>
                     <button
                         onClick={handleLogout}
@@ -55,6 +67,21 @@ const Header = () => {
                     </button>
                 </div>
             ) : null}
+            {isOpen && (
+                <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 p-6 flex flex-col gap-4 sm:hidden animate-slide-in">
+                    <button
+                        className="self-end text-gray-600 hover:text-black"
+                        onClick={() => setIsOpen(false)}
+                        aria-label="閉じる"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                    <Link href="/" onClick={() => setIsOpen(false)}>トップ</Link>
+                    <Link href="/submit/history" onClick={() => setIsOpen(false)}>提出履歴</Link>
+                    <Link href="/schedule" onClick={() => setIsOpen(false)}>共有シフト</Link>
+                    <Link href="/submit" onClick={() => setIsOpen(false)}>シフト提出</Link>
+                </div>
+            )}
         </header>
     )
 }
