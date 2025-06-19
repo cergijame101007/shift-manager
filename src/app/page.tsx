@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import { set } from 'date-fns'
 
 const TopPage = () => {
   const [email, setEmail] = useState('')
@@ -22,29 +23,33 @@ const TopPage = () => {
   }, [])
 
   useEffect(() => {
-    const syncUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (session) {
-        const user = session.user
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
         const tempName = localStorage.getItem('tempName');
 
-        const { error } = await supabase.from('users').upsert({
-          id: user.id,
-          email: user.email,
-          name: tempName || 'NoName',
-          role: 'staff',
-          level: 1,
-        }, { onConflict: 'id' })
-
-        if (!error && tempName) {
-          localStorage.removeItem('tempName')
-        } else if (error) {
-          console.error('upsert error:', error.message)
+        if (tempName) {
+          supabase.from('users').upsert({
+            id: session.user.id,
+            email: session.user.email,
+            name: tempName,
+            role: 'staff',
+            level: 1,
+          }, { onConflict: 'id' })
+            .then(({ error }) => {
+              if (error) {
+                console.error('upsert error:', error.message)
+              } else {
+                localStorage.removeItem('tempName')
+              }
+            })
         }
+        setIsLoggedIn(true)
+        setMessage('ログインしました。')
       }
+    })
+    return () => {
+      authListener.subscription.unsubscribe()
     }
-    syncUser()
   }, [])
 
   const handleLogin = async () => {
