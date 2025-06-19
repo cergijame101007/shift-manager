@@ -39,38 +39,39 @@ const Header = () => {
     }
 
     return (
-        <header className="w-full bg-gray-100 text-gray-800 shadow p-4 flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold">鰻の成瀬</Link >
-            <nav className="hidden sm:flex gap-x-6 text-base">
-                <Link href="/submit/history" className="px-3 py-2 hover:bg-gray-200 rounded">提出履歴</Link>
-                <Link href="/schedule" className="px-3 py-2 hover:bg-gray-200 rounded">共有シフト</Link>
-                <Link href="/submit" className="px-3 py-2 hover:bg-gray-200 rounded">シフト提出</Link>
-            </nav>
-            <div className="flex-1 flex justify-end items-center gap-4">
+        <header className="w-full bg-gray-100 text-gray-800 shadow px-4 py-2 flex items-center justify-between relative">
+            <div className="flex items-center w-1/4">
                 <button
-                    className="sm:hidden p-2 rounded-md hover:bg-gray-200"
+                    className="p-2 rounded-md hover:bg-gray-200 focus:outline-none sm:hidden"
                     onClick={() => setIsOpen(!isOpen)}
                     aria-label="メニューを開く"
                 >
                     {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                 </button>
             </div>
-
+            <div className="flex-1 flex items-center justify-center">
+                <Link href="/" className="text-2xl font-bold justify-center flex">鰻の成瀬</Link >
+            </div>
+            <nav className="hidden sm:flex gap-x-6 text-base">
+                <Link href="/submit/history" className="px-3 py-2 hover:bg-gray-200 rounded">提出履歴</Link>
+                <Link href="/schedule" className="px-3 py-2 hover:bg-gray-200 rounded">共有シフト</Link>
+                <Link href="/submit" className="px-3 py-2 hover:bg-gray-200 rounded">シフト提出</Link>
+            </nav>
             {userName ? (
-                <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-600">{userName}</span>
+                <div className="flex flex-col items-end justify-end gap-y-1 w-1/4">
                     <button
                         onClick={handleLogout}
                         className="px-3 py-1 bg-red-500 text-white rounded text-sm"
                     >
                         ログアウト
                     </button>
+                    <span className="text-sm text-gray-600 justify-center flex">{userName}</span>
                 </div>
             ) : null}
             {isOpen && (
-                <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 p-6 flex flex-col gap-4 sm:hidden animate-slide-in">
+                <div className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 p-6 flex flex-col gap-4 sm:hidden animate-slide-in">
                     <button
-                        className="self-end text-gray-600 hover:text-black"
+                        className="text-gray-600 hover:text-black"
                         onClick={() => setIsOpen(false)}
                         aria-label="閉じる"
                     >
