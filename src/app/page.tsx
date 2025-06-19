@@ -27,18 +27,19 @@ const TopPage = () => {
 
       if (session) {
         const user = session.user
+        const tempName = localStorage.getItem('tempName');
 
         const { error } = await supabase.from('users').upsert({
           id: user.id,
           email: user.email,
-          name: localStorage.getItem('temp_name') || 'NoName',
+          name: tempName || 'NoName',
           role: 'staff',
           level: 1,
         }, { onConflict: 'id' })
 
-        if (!error) {
-          localStorage.removeItem('temp_name')
-        } else {
+        if (!error && tempName) {
+          localStorage.removeItem('tempName')
+        } else if (error) {
           console.error('upsert error:', error.message)
         }
       }
@@ -74,9 +75,9 @@ const TopPage = () => {
       <section className="bg-gray-50 p-6 rounded shadow">
         <h2 className="text-xl font-semibold mb-2 text-gray-800">このアプリについて</h2>
         <p className="text-gray-700 leading-relaxed">
-          このアプリは、スタッフが勤務希望シフトを提出し、店長が確定・共有するためのシフト管理ツールです。
+          このアプリは、スタッフが勤務希望シフトを提出し、オーナーが確定後、自動共有するためのシフト管理ツールです。
         </p>
-        <p className="mt-2 text-gray-700">提出後は個人用画面で履歴を確認できます。</p>
+        <p className="mt-2 text-gray-700">提出後は履歴画面で履歴を確認できます。</p>
       </section>
 
       {isLoggedIn ? (
@@ -85,7 +86,7 @@ const TopPage = () => {
             onClick={goToHistory}
             className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
-            個人用画面へ進む
+            提出履歴を見る
           </button>
           <button onClick={goToSchedule}
             className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
