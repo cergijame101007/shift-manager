@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import FullCalendar from "@fullcalendar/react";
@@ -7,7 +7,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { title } from "process";
-import { getWeek } from "date-fns";
+import { getWeek, set } from "date-fns";
 import { get } from "http";
 
 const SubmitShiftPage = () => {
@@ -33,6 +33,11 @@ const SubmitShiftPage = () => {
         getUser()
     }, [])
 
+    useEffect(() => {
+        console.log('events:', events)
+        console.log('selectedEvent:', selectedEvent)
+    }, [events, selectedEvent])
+
     const getWeekday = (dateString: string): string => {
         const date = new Date(dateString);
         const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
@@ -44,12 +49,18 @@ const SubmitShiftPage = () => {
             alert('すべてのフィールドを入力してください')
             return
         }
+        if (new Date(`${date}T${startTime}`) >= new Date(`${date}T${endTime}`)) {
+            alert('終了時間は開始時間より後でなければなりません');
+            return;
+        }
         const startDateTime = new Date(`${date}T${startTime}`);
         const endDateTime = new Date(`${date}T${endTime}`);
         setEvents([...events, {
-            title: note || `${startTime} - ${endTime}`, start: startDateTime, end: endDateTime
+            id: Date.now().toString(),
+            title: note || '希望',
+            start: startDateTime.toISOString(),
+            end: endDateTime.toISOString()
         }]);
-        console.log(events);
         setShowModal(false);
         setDate('');
         setStartTime('');
@@ -62,9 +73,13 @@ const SubmitShiftPage = () => {
             alert('すべてのフィールドを入力してください');
             return;
         }
+        if (new Date(`${date}T${startTime}`) >= new Date(`${date}T${endTime}`)) {
+            alert('終了時間は開始時間より後でなければなりません');
+            return;
+        }
         const updatedEvent = events.map(event => event.id === selectedEvent.id ? {
             ...event,
-            title: note || `${startTime} - ${endTime}`,
+            title: note || null,
             start: new Date(`${date}T${startTime}`),
             end: new Date(`${date}T${endTime}`)
         } : event);
@@ -73,9 +88,7 @@ const SubmitShiftPage = () => {
     }
 
     const handleDeleteShift = () => {
-        if (!selectedEvent) {
-            return;
-        }
+        if (!selectedEvent) return;
         setEvents(events.filter(event => event.id !== selectedEvent.id));
         resetModal();
     }
@@ -105,17 +118,35 @@ const SubmitShiftPage = () => {
         }
     }
 
+    const timeOptions: string[] = [];
+    for (let hour = 9; hour <= 21; hour++) {
+        for (let minute = 0; minute < 60; minute += 15) {
+            const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            timeOptions.push(time);
+        }
+    }
+
     return (
         <section className="max-w-3xl mx-auto p-6">
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 dateClick={(info: any) => {
+                    if (info.dateStr < new Date().toISOString().split('T')[0]) {
+                        alert('過去の日付は選択できません');
+                        return;
+                    }
+
+                    resetModal();
                     setDate(info.dateStr);
                     setShowModal(true);
                 }}
                 events={events}
-                eventClick={(info) => {
+                eventClick={(info: any) => {
+                    if (info.event.start < new Date()) {
+                        alert('過去のシフトは編集できません');
+                        return;
+                    }
                     setSelectedEvent({
                         ...info.event.extendedProps,
                         id: info.event.id,
@@ -156,11 +187,32 @@ const SubmitShiftPage = () => {
                         <h2 className="text-lg text-black font-bold mb-4">{date}({getWeekday(date)})のシフトを提出</h2>
                         <div className="mb-4">
                             <label className="block text-sm text-black font-medium mb-2">開始時間</label>
-                            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
+                            <select className="border text-sm text-black border-gray-700 p-2 rounded w-full mb-2"
+                                value={startTime}
+                                onChange={(e) => setStartTime(e.target.value)}
+                            >
+                                <option value="">選択してください</option>
+                                {timeOptions.map((time) => (
+                                    <option key={time} value={time}>
+                                        {time}
+                                    </option>
+                                ))}
+                            </select>
+
                         </div>
                         <div className="mb-4">
                             <label className="block text-sm text-black font-medium mb-2">終了時間</label>
-                            <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
+                            <select className="border text-sm text-black border-gray-700 p-2 rounded w-full mb-2"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                            >
+                                <option value="">選択してください</option>
+                                {timeOptions.map((time) => (
+                                    <option key={time} value={time}>
+                                        {time}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="mb-4">
                             <label className="block text-sm text-black font-medium mb-2">備考</label>
