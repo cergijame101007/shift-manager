@@ -9,6 +9,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { title } from "process";
 import { getWeek, set } from "date-fns";
 import { get } from "http";
+import { start } from "repl";
 
 const SubmitShiftPage = () => {
     const [date, setDate] = useState<string>('')
@@ -16,6 +17,7 @@ const SubmitShiftPage = () => {
     const [endTime, setEndTime] = useState('')
     const [note, setNote] = useState('')
     const [events, setEvents] = useState<any[]>([])
+    const [shiftHistory, setShiftHistory] = useState<any[]>([])
     const [userId, setUserId] = useState<string | null>(null)
     const [showModal, setShowModal] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState<any | null>(null)
@@ -53,6 +55,17 @@ const SubmitShiftPage = () => {
             alert('終了時間は開始時間より後でなければなりません');
             return;
         }
+        const existingShift = shiftHistory.find(shift =>
+            shift.start === `${date}T${startTime}` && shift.end === `${date}T${endTime}`
+        );
+        if (!existingShift) {
+            setShiftHistory([...shiftHistory, {
+                start: `${date}T${startTime}`,
+                end: `${date}T${endTime}`,
+                note
+            }])
+        };
+
         const startDateTime = new Date(`${date}T${startTime}`);
         const endDateTime = new Date(`${date}T${endTime}`);
         setEvents([...events, {
