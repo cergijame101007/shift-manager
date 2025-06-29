@@ -11,6 +11,7 @@ import { title } from "process";
 import { getWeek, set } from "date-fns";
 import { get } from "http";
 import { start } from "repl";
+import Calendar from '@/app/components/Calender';
 
 const SubmitShiftPage = () => {
     const [date, setDate] = useState<string>('')
@@ -143,59 +144,42 @@ const SubmitShiftPage = () => {
         }
     }
 
+    const handleDateClick = (info: any) => {
+        if (info.dateStr < new Date().toISOString().split('T')[0]) {
+            alert('過去の日付は選択できません');
+            return;
+        }
+
+        resetModal();
+        setDate(info.dateStr);
+        setShowModal(true);
+    }
+
+    const handleEventClick = (info: any) => {
+        if (info.event.start < new Date()) {
+            alert('過去のシフトは編集できません');
+            return;
+        }
+        setSelectedEvent({
+            ...info.event.extendedProps,
+            id: info.event.id,
+            start: info.event.start,
+            end: info.event.end,
+            title: info.event.title
+        });
+        setDate(info.event.startStr.split("T")[0]);
+        setStartTime(info.event.startStr.slice(11, 16));
+        setEndTime(info.event.endStr.slice(11, 16));
+        setNote(info.event.title !== '希望' ? info.event.title : '');
+        setShowModal(true);
+    }
+
     return (
         <section className="max-w-3xl mx-auto p-6">
-            <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="dayGridMonth"
-                dateClick={(info: any) => {
-                    if (info.dateStr < new Date().toISOString().split('T')[0]) {
-                        alert('過去の日付は選択できません');
-                        return;
-                    }
-
-                    resetModal();
-                    setDate(info.dateStr);
-                    setShowModal(true);
-                }}
+            <Calendar
                 events={events}
-                eventClick={(info: any) => {
-                    if (info.event.start < new Date()) {
-                        alert('過去のシフトは編集できません');
-                        return;
-                    }
-                    setSelectedEvent({
-                        ...info.event.extendedProps,
-                        id: info.event.id,
-                        start: info.event.start,
-                        end: info.event.end,
-                        title: info.event.title
-                    });
-                    setDate(info.event.startStr.split("T")[0]);
-                    setStartTime(info.event.startStr.slice(11, 16));
-                    setEndTime(info.event.endStr.slice(11, 16));
-                    setNote(info.event.title !== '希望' ? info.event.title : '');
-                    setShowModal(true);
-                }}
-                eventContent={(arg) => {
-                    return (
-                        <div className="text-black text-xs truncate">
-                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                            {arg.event.title}
-                        </div>
-                    )
-                }}
-                height={"auto"}
-                dayHeaderContent={(arg) => {
-                    const day = arg.date.getDay()
-                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
-                    return <span style={{ color }}>{arg.text}</span>
-                }}
-                dayCellContent={(arg) => {
-                    const day = arg.date.getDay()
-                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
-                    return <div style={{ color }}>{arg.dayNumberText}</div>
-                }}
+                onDateClick={handleDateClick}
+                onEventClick={handleEventClick}
             />
 
             {showModal && (
