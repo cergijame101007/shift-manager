@@ -12,14 +12,21 @@ import { get } from "http";
 import { start } from "repl";
 
 const SubmitShiftPage = () => {
+    type ShiftEvent = {
+        id: string;
+        title: string;
+        start: Date;
+        end: Date;
+        note?: string;
+    };
     const [date, setDate] = useState<string>('')
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
     const [note, setNote] = useState('')
-    const [events, setEvents] = useState<any[]>([])
+    const [events, setEvents] = useState<ShiftEvent[]>([])
     const [userId, setUserId] = useState<string | null>(null)
     const [showModal, setShowModal] = useState(false)
-    const [selectedEvent, setSelectedEvent] = useState<any | null>(null)
+    const [selectedEvent, setSelectedEvent] = useState<ShiftEvent | null>(null)
     const router = useRouter()
 
     useEffect(() => {
@@ -45,8 +52,8 @@ const SubmitShiftPage = () => {
         return new Intl.DateTimeFormat('ja-JP', options).format(date);
     }
 
-    const isValidTime = (start: string, end: string): boolean => {
-        return new Date(start) < new Date(end);
+    const isValidTime = (start: Date, end: Date): boolean => {
+        return start < end;
     }
 
     const handleAddShift = () => {
@@ -54,18 +61,23 @@ const SubmitShiftPage = () => {
             alert('すべてのフィールドを入力してください')
             return
         }
-        if (!isValidTime(`${date}T${startTime}`, `${date}T${endTime}`)) {
+        if (!isValidTime(new Date(`${date}T${startTime}`), new Date(`${date}T${endTime}`))) {
             alert('終了時間は開始時間より後でなければなりません');
             return;
         }
+
         const startDateTime = new Date(`${date}T${startTime}`);
         const endDateTime = new Date(`${date}T${endTime}`);
-        setEvents([...events, {
+
+        const newEvent: ShiftEvent = {
             id: Date.now().toString(),
             title: note || '希望',
-            start: startDateTime.toISOString(),
-            end: endDateTime.toISOString()
-        }]);
+            start: startDateTime,
+            end: endDateTime,
+            note: note || ''
+        }
+
+        setEvents(prev => [...prev, newEvent]);
         setShowModal(false);
         setDate('');
         setStartTime('');
@@ -78,16 +90,22 @@ const SubmitShiftPage = () => {
             alert('すべてのフィールドを入力してください');
             return;
         }
-        if (!isValidTime(`${date}T${startTime}`, `${date}T${endTime}`)) {
+        if (!isValidTime(new Date(`${date}T${startTime}`), new Date(`${date}T${endTime}`))) {
             alert('終了時間は開始時間より後でなければなりません');
             return;
         }
+
+        const newStartDateTime = new Date(`${date}T${startTime}`);
+        const newEndDateTime = new Date(`${date}T${endTime}`);
+
         const updatedEvent = events.map(event => event.id === selectedEvent.id ? {
             ...event,
-            title: note || null,
-            start: new Date(`${date}T${startTime}`),
-            end: new Date(`${date}T${endTime}`)
+            title: note || '希望',
+            start: newStartDateTime,
+            end: newEndDateTime,
+            note: note || ''
         } : event);
+
         setEvents(updatedEvent);
         resetModal();
     }
