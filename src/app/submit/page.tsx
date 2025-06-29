@@ -6,19 +6,13 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { ShiftEvent } from "@/types/shift";
 import { title } from "process";
 import { getWeek, set } from "date-fns";
 import { get } from "http";
 import { start } from "repl";
 
 const SubmitShiftPage = () => {
-    type ShiftEvent = {
-        id: string;
-        title: string;
-        start: Date;
-        end: Date;
-        note?: string;
-    };
     const [date, setDate] = useState<string>('')
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
