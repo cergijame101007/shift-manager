@@ -4,46 +4,42 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { useState } from 'react'
+import Calendar from '@/app/components/Calender'
+import { ShiftEvent } from "@/types/shift";
 
 const SchedulePage = () => {
-    const [events, setEvents] = useState([
+    const [events, setEvents] = useState<ShiftEvent[]>([
         {
+            id: '1',
             title: '山田',
-            start: '2025-06-15T10:00:00',
-            end: '2025-06-15T14:00:00',
+            start: new Date('2025-06-15T10:00:00'),
+            end: new Date('2025-06-15T14:00:00'),
         },
         {
+            id: '2',
             title: '佐藤',
-            start: '2025-06-15T16:00:00',
-            end: '2025-06-15T20:00:00',
+            start: new Date('2025-06-15T16:00:00'),
+            end: new Date('2025-06-15T20:00:00'),
         },
     ])
 
+    const handleDateClick = (info: any) => {
+        return
+    }
+
+    const handleEventClick = (info: any) => {
+        return
+
+    }
     return (
-        <div className="p-4 rounded shadow">
+        <section className="max-w-3xl mx-auto p-6">
             <h1 className="text-2xl font-bold mb-4">共有シフトカレンダー</h1>
-            <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="dayGridMonth"
-                headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
-                }}
+            <Calendar
                 events={events}
-                height="auto"
-                dayHeaderContent={(arg) => {
-                    const day = arg.date.getDay()
-                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
-                    return <span style={{ color }}>{arg.text}</span>
-                }}
-                dayCellContent={(arg) => {
-                    const day = arg.date.getDay()
-                    const color = day === 0 ? 'red' : day === 6 ? 'blue' : 'black'
-                    return <div style={{ color }}>{arg.dayNumberText}</div>
-                }}
+                onDateClick={handleDateClick}
+                onEventClick={handleEventClick}
             />
-        </div>
+        </section>
     )
 }
 
