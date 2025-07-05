@@ -1,27 +1,30 @@
 'use client'
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { ShiftEvent } from "@/types/shift";
-import { title } from "process";
-import { getWeek, set } from "date-fns";
-import { get } from "http";
-import { start } from "repl";
+import { ShiftEvent } from "@/lib/utils/types"
+import { isValidTime } from '@/lib/utils/files';
+
+// import { title } from "process";
+// import { getWeek, set } from "date-fns";
+// import { get } from "http";
+// import { start } from "repl";
+
 import Calendar from '@/app/components/Calender';
+import Modal from '@/app/components/Modal'
 
 const SubmitShiftPage = () => {
     const [date, setDate] = useState<string>('')
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
     const [note, setNote] = useState('')
-    const [events, setEvents] = useState<ShiftEvent[]>([])
     const [userId, setUserId] = useState<string | null>(null)
-    const [showModal, setShowModal] = useState(false)
+
+    const [events, setEvents] = useState<ShiftEvent[]>([])
     const [selectedEvent, setSelectedEvent] = useState<ShiftEvent | null>(null)
+
+    const [showModal, setShowModal] = useState(false)
+
     const router = useRouter()
 
     useEffect(() => {
@@ -40,16 +43,6 @@ const SubmitShiftPage = () => {
         console.log('events:', events)
         console.log('selectedEvent:', selectedEvent)
     }, [events, selectedEvent])
-
-    const getWeekday = (dateString: string): string => {
-        const date = new Date(dateString);
-        const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
-        return new Intl.DateTimeFormat('ja-JP', options).format(date);
-    }
-
-    const isValidTime = (start: Date, end: Date): boolean => {
-        return start < end;
-    }
 
     const handleAddShift = () => {
         if (!date || !startTime || !endTime) {
@@ -136,14 +129,6 @@ const SubmitShiftPage = () => {
         }
     }
 
-    const timeOptions: string[] = [];
-    for (let hour = 9; hour <= 21; hour++) {
-        for (let minute = 0; minute < 60; minute += 15) {
-            const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-            timeOptions.push(time);
-        }
-    }
-
     const handleDateClick = (info: any) => {
         if (info.dateStr < new Date().toISOString().split('T')[0]) {
             alert('過去の日付は選択できません');
@@ -183,55 +168,20 @@ const SubmitShiftPage = () => {
             />
 
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
-                        <h2 className="text-lg text-black font-bold mb-4">{date}({getWeekday(date)})のシフトを提出</h2>
-                        <div className="mb-4">
-                            <label className="block text-sm text-black font-medium mb-2">開始時間</label>
-                            <select className="border text-sm text-black border-gray-700 p-2 rounded w-full mb-2"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
-                            >
-                                <option value="">選択してください</option>
-                                {timeOptions.map((time) => (
-                                    <option key={time} value={time}>
-                                        {time}
-                                    </option>
-                                ))}
-                            </select>
-
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm text-black font-medium mb-2">終了時間</label>
-                            <select className="border text-sm text-black border-gray-700 p-2 rounded w-full mb-2"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
-                            >
-                                <option value="">選択してください</option>
-                                {timeOptions.map((time) => (
-                                    <option key={time} value={time}>
-                                        {time}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm text-black font-medium mb-2">備考</label>
-                            <textarea value={note} onChange={(e) => setNote(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
-                        </div>
-                        <div className="flex justify-end gap-2">
-                            <button onClick={() => setShowModal(false)} className="px-3 py-1 text-black border-gray-700 rounded shadow">キャンセル</button>
-                            {selectedEvent ? (
-                                <div>
-                                    <button onClick={handleEditShift} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">編集</button>
-                                    <button onClick={handleDeleteShift} className="bg-red-700 text-white py-2 px-4 rounded shadow hover:bg-red-800 transition">削除</button>
-                                </div>
-                            ) : (
-                                <button onClick={handleAddShift} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">確定</button>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                <Modal
+                    date={date}
+                    startTime={startTime}
+                    endTime={endTime}
+                    note={note}
+                    selectedEvent={selectedEvent}
+                    setStartTime={setStartTime}
+                    setEndTime={setEndTime}
+                    setNote={setNote}
+                    handleAddShift={handleAddShift}
+                    handleEditShift={handleEditShift}
+                    handleDeleteShift={handleDeleteShift}
+                    setShowModal={setShowModal}
+                />
             )}
             <div className="mt-6">
                 <button onClick={handleSubmit} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">

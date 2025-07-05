@@ -2,15 +2,10 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import { ShiftEvent } from "@/types/shift";
+import { CalendarProps } from "@/lib/utils/types";
+import React from "react";
 
-type CalendarProps = {
-    events: ShiftEvent[];
-    onDateClick: (info: any) => void;
-    onEventClick: (info: any) => void;
-};
-
-const Calendar = ({ events, onDateClick, onEventClick }: CalendarProps) => {
+const Calendar: React.FC<CalendarProps> = ({ events, onDateClick, onEventClick }) => {
     return (
         <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}

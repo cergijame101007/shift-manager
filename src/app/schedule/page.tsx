@@ -1,11 +1,7 @@
 'use client'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
 import { useState } from 'react'
 import Calendar from '@/app/components/Calender'
-import { ShiftEvent } from "@/types/shift";
+import { ShiftEvent } from "@/lib/utils/types"
 
 const SchedulePage = () => {
     const [events, setEvents] = useState<ShiftEvent[]>([
