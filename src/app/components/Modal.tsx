@@ -1,5 +1,5 @@
 import { ModalProps } from "@/lib/utils/types"
-import { getWeekday, timeOptions } from "@/lib/utils/files";
+import { getWeekday, generateTimeOptions } from "@/lib/utils/files";
 
 const Modal: React.FC<ModalProps> = ({
     date,
@@ -15,6 +15,7 @@ const Modal: React.FC<ModalProps> = ({
     handleDeleteShift,
     setShowModal
 }) => {
+    const timeOptions = generateTimeOptions();
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded shadow-md w-full max-w-sm space-y-4">
