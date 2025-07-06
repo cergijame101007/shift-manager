@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
-import { set } from 'date-fns'
 
 const TopPage = () => {
   const [email, setEmail] = useState('')
