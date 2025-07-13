@@ -116,9 +116,9 @@ const SubmitShiftPage = () => {
     const handleSubmit = async () => {
         const insertedEvents = events.map(event => ({
             user_id: userId,
-            date: event.start.toISOString().split('T')[0], // 日付部分のみを抽出
-            start_time: event.start.toTimeString().split(' ')[0], // 時間部分のみを抽出
-            end_time: event.end.toTimeString().split(' ')[0], // 時間部分のみを抽出
+            date: event.start.toISOString().split('T')[0],
+            start_time: event.start.toTimeString().split(' ')[0],
+            end_time: event.end.toTimeString().split(' ')[0],
         }));
         const { error } = await supabase.from('requested_shifts').insert(insertedEvents)
         if (error) {
