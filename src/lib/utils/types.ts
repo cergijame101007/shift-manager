@@ -26,3 +26,9 @@ export type ModalProps = {
     handleEditShift: () => void;
     handleDeleteShift: () => void;
 }
+
+export type ButtonProps = {
+    onClick: () => void;
+    children: React.ReactNode;
+    className?: string;
+}
