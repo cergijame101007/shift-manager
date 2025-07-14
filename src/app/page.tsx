@@ -2,10 +2,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import Button from "@/app/components/Button"
 
 const TopPage = () => {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
+  const [userId, setUserId] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
@@ -86,22 +88,22 @@ const TopPage = () => {
 
       {isLoggedIn ? (
         <section className="grid gap-4 sm:grid-cols-2">
-          <button
+          <Button
             onClick={goToHistory}
             className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
             提出履歴を見る
-          </button>
-          <button onClick={goToSchedule}
+          </Button>
+          <Button onClick={goToSchedule}
             className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
             共有シフトを見る
-          </button>
-          <button onClick={goToSubmit}
+          </Button>
+          <Button onClick={goToSubmit}
             className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
           >
             シフトを提出する
-          </button>
+          </Button>
         </section>
       ) : (
         <>
@@ -115,17 +117,25 @@ const TopPage = () => {
           />
           <input
             type="text"
+            placeholder="配布されたユーザーIDを入力"
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            className="w-full border px-3 py-2"
+            required
+          />
+          <input
+            type="text"
             placeholder="名前"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border px-3 py-2 mt-2"
           />
-          <button
+          <Button
             onClick={handleLogin}
             className="bg-green-600 text-white px-4 py-2 rounded w-full"
           >
             認証して個人用画面を作成
-          </button>
+          </Button>
           {message && <p className="text-sm text-gray-700">{message}</p>}
         </>
       )}

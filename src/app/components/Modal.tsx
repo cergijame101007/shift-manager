@@ -1,4 +1,5 @@
 import { ModalProps } from "@/lib/utils/types"
+import Button from "@/app/components/Button"
 import { getWeekday, generateTimeOptions } from "@/lib/utils/files";
 
 const Modal: React.FC<ModalProps> = ({
@@ -54,14 +55,30 @@ const Modal: React.FC<ModalProps> = ({
                     <textarea value={note} onChange={(e) => setNote(e.target.value)} className="border text-sm text-black border-gray-700 p-2 rounded w-full" />
                 </div>
                 <div className="flex justify-end gap-2">
-                    <button onClick={() => setShowModal(false)} className="px-3 py-1 text-black border-gray-700 rounded shadow">キャンセル</button>
+                    <Button
+                        onClick={() => setShowModal(false)}
+                        className="px-3 py-1 text-black border-gray-700 rounded shadow">
+                        キャンセル
+                    </Button>
                     {selectedEvent ? (
                         <div>
-                            <button onClick={handleEditShift} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">編集</button>
-                            <button onClick={handleDeleteShift} className="bg-red-700 text-white py-2 px-4 rounded shadow hover:bg-red-800 transition">削除</button>
+                            <Button
+                                onClick={handleEditShift}
+                                className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">
+                                編集
+                            </Button>
+                            <Button
+                                onClick={handleDeleteShift}
+                                className="bg-red-700 text-white py-2 px-4 rounded shadow hover:bg-red-800 transition">
+                                削除
+                            </Button>
                         </div>
                     ) : (
-                        <button onClick={handleAddShift} className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">確定</button>
+                        <Button
+                            onClick={handleAddShift}
+                            className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition">
+                            確定
+                        </Button>
                     )}
                 </div>
             </div>
