@@ -53,7 +53,7 @@ export const POST = async (req: Request) => {
 
         await supabase.from('issued_ids').update({
             used: true,
-            used_by_user_id: userId,
+            user_id: userId,
         })
             .eq('issued_id', issuedId)
 

@@ -14,7 +14,7 @@ export type IssuedIdData = {
     created_at: string;
     users?: {
         name: string
-    } | null
+    }[] | null
 }
 
 export type CalendarProps = {
