@@ -6,6 +6,17 @@ export type ShiftEvent = {
     note?: string;
 };
 
+export type IssuedIdData = {
+    issued_id: string;
+    id: string;
+    used: boolean;
+    user_id: string | null;
+    created_at: string;
+    users?: {
+        name: string
+    } | null
+}
+
 export type CalendarProps = {
     events: ShiftEvent[];
     onDateClick: (info: any) => void;
