@@ -41,6 +41,14 @@ const ManageIds = () => {
         }
     }
 
+    const handleDelete = async (issued_id: string) => {
+        if (!window.confirm(`${issued_id}を削除しますか？`)) return
+        const { error } = await supabase.from('issued_ids')
+            .delete().eq('issued_id', issued_id).eq('used', false)
+
+        if (!error) fetchIssuedIds()
+    }
+
     useEffect(() => {
         fetchIssuedIds()
     }, [])
@@ -64,6 +72,15 @@ const ManageIds = () => {
                             <td className="border px-2 py-1">{row.users?.[0]?.name ?? '未使用'}</td>
                             <td className="border px-2 py-1">{row.used ? new Date(row.created_at).toLocaleString() : '-'}</td>
                             <td className="border px-2 py-1 text-center">
+                                {!row.used && (
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => handleDelete(row.issued_id)}
+                                        className="bg-red-600 text-white"
+                                    >
+                                        削除
+                                    </Button>
+                                )}
                             </td>
                         </tr>
                     ))}
