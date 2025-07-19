@@ -25,6 +25,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
 .fc-view-harness {
   background: white;
 }
