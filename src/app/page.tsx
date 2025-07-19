@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import Button from "@/app/components/Button"
 
 const TopPage = () => {
-  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [userId, setUserId] = useState('')
+  const [issuedId, setIssuedId] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
@@ -108,27 +108,27 @@ const TopPage = () => {
       ) : (
         <>
           <input
-            type="email"
-            placeholder="メールアドレスを入力"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border px-3 py-2"
-            required
-          />
-          <input
-            type="text"
-            placeholder="配布されたユーザーIDを入力"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="w-full border px-3 py-2"
-            required
-          />
-          <input
             type="text"
             placeholder="名前"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border px-3 py-2 mt-2"
+          />
+          <input
+            type="text"
+            placeholder="配布されたユーザーIDを入力"
+            value={issuedId}
+            onChange={(e) => setIssuedId(e.target.value)}
+            className="w-full border px-3 py-2"
+            required
+          />
+          <input
+            type="password"
+            placeholder="共通パスワードを入力"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border px-3 py-2"
+            required
           />
           <Button
             onClick={handleLogin}
