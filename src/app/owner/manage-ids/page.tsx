@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { IssuedIdData } from "@/lib/utils/types";
 import { supabase } from "@/lib/supabaseClient";
+import Button from "@/app/components/Button";
 
 const ManageIds = () => {
     const [issuedIds, setIssuedIds] = useState<IssuedIdData[]>([]);
@@ -55,6 +56,28 @@ const ManageIds = () => {
         // </button>
         <main className="max-w-md mx-auto p-6 space-y-6">
             <h1>オーナー用ID管理ページ</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th className="border px-2 py-1">ID</th>
+                        <th className="border px-2 py-1">使用者</th>
+                        <th className="border px-2 py-1">使用日時</th>
+                        <th className="border px-2 py-1">削除</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    {issuedIds.map((row) => (
+                        <tr key={row.id}>
+                            <td className="border px-2 py-1">{row.issued_id}</td>
+                            <td className="border px-2 py-1">{row.users?.[0]?.name ?? '未使用'}</td>
+                            <td className="border px-2 py-1">{row.used ? new Date(row.created_at).toLocaleString() : '-'}</td>
+                            <td className="border px-2 py-1 text-center">
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
             <select
                 value={pendingIssueCount}
                 onChange={e => setPendingIssueCount(parseInt(e.target.value))}
@@ -68,6 +91,12 @@ const ManageIds = () => {
                 <option value={6} className="text-black">6</option>
                 <option value={7} className="text-black">7</option>
             </select>
+            <Button
+                onClick={generateIds}
+                className="bg-gray-700 text-white py-2 px-4 rounded shadow hover:bg-gray-800 transition"
+            >
+                IDを発行
+            </Button>
         </main>
     );
 }
