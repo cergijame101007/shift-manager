@@ -39,7 +39,7 @@ const Header = () => {
     }
 
     return (
-        <header className="w-full bg-gray-100 text-gray-800 shadow px-4 py-2 flex items-center justify-between relative">
+        <header className="w-full min-h-[56px] bg-gray-100 text-gray-800 shadow px-4 py-2 flex items-center justify-between relative">
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2 sm:hidden">
                 <button
                     className="p-2 rounded-md hover:bg-gray-200 focus:outline-none"
