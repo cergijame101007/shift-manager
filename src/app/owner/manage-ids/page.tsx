@@ -41,19 +41,11 @@ const ManageIds = () => {
         }
     }
 
-    const showIds = async () => {
-        const id = await generateIds()
-        console.log(id);
-    }
-
     useEffect(() => {
         fetchIssuedIds()
     }, [])
 
     return (
-        // <button onClick={showIds}>
-        //     push
-        // </button>
         <main className="max-w-md mx-auto p-6 space-y-6">
             <h1>オーナー用ID管理ページ</h1>
             <table>
@@ -64,7 +56,6 @@ const ManageIds = () => {
                         <th className="border px-2 py-1">使用日時</th>
                         <th className="border px-2 py-1">削除</th>
                     </tr>
-
                 </thead>
                 <tbody>
                     {issuedIds.map((row) => (
